@@ -1,0 +1,79 @@
+# Loading in required libraries
+library(tidyverse)
+library(readr)
+library(ggplot2)
+
+# Reading in the Nobel Prize data
+nobel <- read_csv('data/nobel.csv')
+
+# Store and display the most commonly awarded gender and birth country in requested variables
+nobel %>%
+    group_by(sex) %>%
+    count() %>%
+	arrange(desc(n))
+
+top_gender <- "Male"
+
+nobel %>%
+    group_by(birth_country) %>%
+    count()  %>% 
+    arrange(desc(n))  %>% 
+    head(20)
+
+top_country <- "United States of America"
+
+# Printing the results
+cat("The gender with the most Nobel laureates is:", top_gender, "\n")
+cat("The most common birth country of Nobel laureates is:", top_country, "\n")
+
+# Calculating the proportion of USA born winners per decade
+prop_usa_winners <- nobel %>% 
+    mutate(usa_born_winner = birth_country == "United States of America",
+           decade = floor(year / 10) * 10 ) %>% 
+    group_by(decade) %>%
+    summarize(proportion = mean(usa_born_winner, na.rm = TRUE))
+
+# Identify the decade with the highest proportion of US-born winners
+max_decade_usa <- "2000"
+
+# Optional: Plotting USA born winners
+options(repr.plot.width=7, repr.plot.height=4)
+
+ggplot(prop_usa_winners, aes(decade, proportion)) +
+    geom_line() + geom_point() +
+    scale_y_continuous(labels = scales::percent, limits = 0:1, expand = c(0,0))
+
+# Calculating the proportion of female laureates per decade
+prop_female_winners <- nobel %>%
+    mutate(female_winner = sex == "Female",
+           decade = floor(year / 10) * 10) %>%
+    group_by(decade, category) %>%
+    summarize(proportion = mean(female_winner))
+
+# Create a list with the decade and category pair
+max_female_list <- list(decade = "2020",
+                        category = "Literature")
+
+# Optional: Plotting female winners with % winners on the y-axis
+ggplot(prop_female_winners, aes(decade, proportion, color = category)) +
+    geom_line() + geom_point() +
+    scale_y_continuous(labels = scales::percent, limits = 0:1, expand = c(0,0))
+
+# Finding the first woman to win a Nobel Prize
+first_woman <- nobel %>%
+    filter(sex == "Female") %>%
+    top_n(1, desc(year))
+
+first_woman_name <- first_woman$full_name
+first_woman_category <- first_woman$category
+
+# Printing the results
+cat(sprintf("The first woman to win a Nobel Prize was %s, in the category of %s.\n", first_woman_name, first_woman_category))
+
+# Selecting the laureates that have received 2 or more prizes
+repeats <- nobel %>%
+    group_by(full_name) %>% 
+    count()  %>% 
+    filter(n >= 2)
+
+repeats
