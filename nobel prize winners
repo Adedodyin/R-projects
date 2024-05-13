@@ -1,11 +1,3 @@
-# Loading in required libraries
-library(tidyverse)
-library(readr)
-library(ggplot2)
-
-# Reading in the Nobel Prize data
-nobel <- read_csv('data/nobel.csv')
-
 # Store and display the most commonly awarded gender and birth country in requested variables
 nobel %>%
     group_by(sex) %>%
