@@ -2,6 +2,10 @@
 library(tidyverse)
 library(readr)
 library(ggplot2)
+library(readxl)
+
+# Reading in the Nobel Prize data
+nobel <- read_excel('data/nobel.xlsx')
 
 # Store and display the most commonly awarded gender and birth country in requested variables
 nobel %>%
